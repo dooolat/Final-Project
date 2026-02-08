@@ -1,0 +1,11 @@
+console.log("AUTH ROUTES LOADED");
+
+import express from "express";
+import { register, login } from "../src/controllers/auth.controller.js";
+
+const router = express.Router();
+
+router.post("/register", register);
+router.post("/login", login);
+
+export default router;

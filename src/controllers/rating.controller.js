@@ -11,13 +11,11 @@ export const ratePhoto = async (req, res, next) => {
       return res.status(400).json({ message: "Rating must be 1–5" });
     }
 
-    
     await Rating.findOneAndUpdate(
       { user: req.user._id, photo: photoId },
       { value },
       { upsert: true, new: true }
     );
-
 
     const stats = await Rating.aggregate([
       {
@@ -33,16 +31,11 @@ export const ratePhoto = async (req, res, next) => {
       },
     ]);
 
-    const avgRating = stats.length ? stats[0].avgRating : 0;
+    const avgRating = stats.length ? Number(stats[0].avgRating.toFixed(1)) : 0;
 
-    await Photo.findByIdAndUpdate(photoId, {
-      avgRating: avgRating.toFixed(1),
-    });
+    await Photo.findByIdAndUpdate(photoId, { avgRating });
 
-    res.json({
-      message: "Rating saved",
-      avgRating,
-    });
+    res.json({ avgRating });
   } catch (error) {
     next(error);
   }

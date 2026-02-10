@@ -129,3 +129,13 @@ input.error-input {
   flex-direction: column;
   gap: 10px;
 }
+
+/* ===== Comments ===== */
+.comments {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.comment {
+  margin: 2px 0;
+}

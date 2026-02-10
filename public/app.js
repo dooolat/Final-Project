@@ -1,6 +1,8 @@
-const API = "http://localhost:5000/api";
+const API = "/api";
 
-// LOGIN
+/* ======================
+   LOGIN
+====================== */
 function login() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
@@ -24,59 +26,35 @@ function login() {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.id);
-
-      // redirect to feed
       window.location.href = "index.html";
     })
-    .catch(() => {
-      showError("Server error. Try again later.");
-    });
+    .catch(() => showError("Server error"));
 }
 
-// REGISTER
+/* ======================
+   REGISTER
+====================== */
 function register() {
   clearErrors();
 
-  const usernameInput = document.getElementById("username");
-  const emailInput = document.getElementById("email");
-  const passwordInput = document.getElementById("password");
+  const username = document.getElementById("username").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-  const username = usernameInput.value.trim();
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
-
-  if (!username) {
-    showError("Username is required");
-    usernameInput.classList.add("error-input");
-    return;
-  }
-
-  if (!email) {
-    showError("Email is required");
-    emailInput.classList.add("error-input");
-    return;
-  }
-
-  if (!password) {
-    showError("Password is required");
-    passwordInput.classList.add("error-input");
+  if (!username || !email || !password) {
+    showError("All fields are required");
     return;
   }
 
   if (password.length < 6) {
     showError("Password must be at least 6 characters");
-    passwordInput.classList.add("error-input");
     return;
   }
 
   fetch(`${API}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username,
-      email,
-      password,
-    }),
+    body: JSON.stringify({ username, email, password }),
   })
     .then(res => res.json())
     .then(data => {
@@ -87,23 +65,22 @@ function register() {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.id);
-
-      // redirect to feed
       window.location.href = "index.html";
     })
-    .catch(() => {
-      showError("Server is not responding");
-    });
+    .catch(() => showError("Server error"));
 }
 
-
-// LOGOUT
+/* ======================
+   LOGOUT
+====================== */
 function logout() {
   localStorage.clear();
   window.location.href = "login.html";
 }
 
-// FEED
+/* ======================
+   FEED
+====================== */
 function loadFeed() {
   const feed = document.getElementById("feed");
   if (!feed) return;
@@ -121,39 +98,29 @@ function loadFeed() {
       }
 
       photos.forEach(photo => {
-        const isOwnerObject =
-          photo.owner && typeof photo.owner === "object";
+        const authorName =
+          photo.owner && typeof photo.owner === "object"
+            ? photo.owner.username
+            : "Unknown";
 
-        const authorName = isOwnerObject
-          ? photo.owner.username
-          : "Unknown";
+        const authorId =
+          photo.owner && typeof photo.owner === "object"
+            ? photo.owner._id
+            : "";
 
-        const authorId = isOwnerObject
-          ? photo.owner._id
-          : null;
+        const stars = [1,2,3,4,5]
+          .map(v =>
+            `<span class="star" onclick="ratePhoto('${photo._id}', ${v})">⭐</span>`
+          )
+          .join("");
 
         const card = document.createElement("div");
         card.className = "photo-card";
 
-        // ⭐⭐⭐⭐⭐ (без кнопок)
-        const stars = [1, 2, 3, 4, 5]
-          .map(() => "⭐")
-          .join("");
-
         card.innerHTML = `
-          <img src="http://localhost:5000${photo.imageUrl}" />
+          <img src="${photo.imageUrl}" />
           <h3>${photo.title}</h3>
-
-          ${
-            authorId
-              ? `<p class="author">
-                   by <a href="portfolio.html?user=${authorId}">
-                     ${authorName}
-                   </a>
-                 </p>`
-              : `<p class="author">by ${authorName}</p>`
-          }
-
+          <p>by <a href="portfolio.html?user=${authorId}">${authorName}</a></p>
           <div class="rating">
             ${stars}
             <span class="avg">(${photo.avgRating})</span>
@@ -163,14 +130,14 @@ function loadFeed() {
         feed.appendChild(card);
       });
     })
-    .catch(err => {
-      console.error(err);
+    .catch(() => {
       feed.innerHTML = "<p>Failed to load feed</p>";
     });
 }
 
-
-// HELPERS
+/* ======================
+   PORTFOLIO
+====================== */
 function loadMyPortfolio() {
   loadPortfolio(localStorage.getItem("userId"), true);
 }
@@ -179,14 +146,10 @@ function loadUserPortfolio(userId) {
   loadPortfolio(userId, false);
 }
 
-// =======================
-// MAIN FUNCTION
-// =======================
 function loadPortfolio(userId, isOwner) {
   const gallery = document.getElementById("gallery");
   if (!gallery) return;
 
-  // если не владелец — скрываем upload
   if (!isOwner) {
     document.querySelector(".upload-box")?.remove();
   }
@@ -206,7 +169,7 @@ function loadPortfolio(userId, isOwner) {
         card.className = "photo-card";
 
         card.innerHTML = `
-          <img src="http://localhost:5000${photo.imageUrl}" />
+          <img src="${photo.imageUrl}" />
           <h3>${photo.title}</h3>
           <p>⭐ ${photo.avgRating}</p>
         `;
@@ -219,43 +182,30 @@ function loadPortfolio(userId, isOwner) {
     });
 }
 
-// HELPERS2
-function showError(message) {
-  const error = document.getElementById("error");
-  if (error) error.innerText = message;
+function protectMyPortfolio() {
+  const link = document.getElementById("my-portfolio");
+  if (!link) return;
+
+  link.addEventListener("click", (e) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      e.preventDefault();
+      alert("Please login to access your portfolio");
+    }
+  });
 }
 
-function clearErrors() {
-  const error = document.getElementById("error");
-  if (error) error.innerText = "";
-
-  document
-    .querySelectorAll(".error-input")
-    .forEach(el => el.classList.remove("error-input"));
-}
-
-// uploadPhoto
+/* ======================
+   UPLOAD
+====================== */
 function uploadPhoto() {
-  const titleInput = document.getElementById("photo-title");
-  const fileInput = document.getElementById("photo-file");
+  const title = document.getElementById("photo-title").value.trim();
+  const file = document.getElementById("photo-file").files[0];
   const error = document.getElementById("upload-error");
 
-  error.innerText = "";
-  titleInput.classList.remove("error-input");
-  fileInput.classList.remove("error-input");
-
-  const title = titleInput.value.trim();
-  const file = fileInput.files[0];
-
-  if (!title) {
-    error.innerText = "Title is required";
-    titleInput.classList.add("error-input");
-    return;
-  }
-
-  if (!file) {
-    error.innerText = "Image file is required";
-    fileInput.classList.add("error-input");
+  if (!title || !file) {
+    error.innerText = "Title and image are required";
     return;
   }
 
@@ -270,31 +220,16 @@ function uploadPhoto() {
     },
     body: formData,
   })
-    .then(res => res.json())
-    .then(data => {
-      if (data.message) {
-        error.innerText = data.message;
-        return;
-      }
-
-      titleInput.value = "";
-      fileInput.value = "";
-
-      loadPortfolio();
-    })
-    .catch(() => {
-      error.innerText = "Upload failed";
-    });
+    .then(() => loadMyPortfolio())
+    .catch(() => error.innerText = "Upload failed");
 }
 
-// rating
+/* ======================
+   RATING
+====================== */
 function ratePhoto(photoId, value) {
   const token = localStorage.getItem("token");
-
-  if (!token) {
-    alert("Please login to rate photos");
-    return;
-  }
+  if (!token) return alert("Login required");
 
   fetch(`${API}/photos/${photoId}/rate`, {
     method: "POST",
@@ -303,24 +238,15 @@ function ratePhoto(photoId, value) {
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ value }),
-  })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error("Rating failed");
-      }
-      return res.json();
-    })
-    .then(() => {
-      loadFeed();
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Failed to rate photo");
-    });
+  }).then(() => loadFeed());
 }
 
-function addComment(photoId, text) {
-  if (!text.trim()) return;
+/* ======================
+   COMMENTS (простая версия)
+====================== */
+function addComment(photoId) {
+  const text = prompt("Enter comment");
+  if (!text) return;
 
   fetch(`${API}/photos/${photoId}/comments`, {
     method: "POST",
@@ -329,11 +255,31 @@ function addComment(photoId, text) {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({ text }),
-  })
-    .then(() => loadFeed());
+  }).then(() => loadFeed());
 }
 
+/* ======================
+   HELPERS
+====================== */
+function showError(msg) {
+  const el = document.getElementById("error");
+  if (el) el.innerText = msg;
+}
+
+function clearErrors() {
+  const el = document.getElementById("error");
+  if (el) el.innerText = "";
+}
+
+/* ======================
+   INIT
+====================== */
 document.addEventListener("DOMContentLoaded", () => {
+
+  updateAuthButton();
+  updateMyPortfolioLink();
+  protectMyPortfolio();
+  
   // FEED
   if (document.getElementById("feed")) {
     loadFeed();
@@ -342,37 +288,40 @@ document.addEventListener("DOMContentLoaded", () => {
   // PORTFOLIO
   if (document.getElementById("gallery")) {
     const params = new URLSearchParams(window.location.search);
-    const userFromUrl = params.get("user");
+    const user = params.get("user");
 
-    if (userFromUrl) {
-      loadUserPortfolio(userFromUrl);
+    if (user) {
+      loadUserPortfolio(user);
     } else {
       loadMyPortfolio();
     }
   }
 });
 
-//consoleLog
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM READY");
 
-  const feed = document.getElementById("feed");
-  if (feed) {
-    console.log("FEED PAGE");
-    loadFeed();
+// Update auth button
+function updateAuthButton() {
+  const btn = document.getElementById("auth-btn");
+  if (!btn) return;
+
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    btn.innerText = "Logout";
+    btn.onclick = logout;
+  } else {
+    btn.innerText = "Sign in";
+    btn.onclick = () => {
+      window.location.href = "login.html";
+    };
   }
+}
 
-  const gallery = document.getElementById("gallery");
-  if (gallery) {
-    console.log("PORTFOLIO PAGE");
+function updateMyPortfolioLink() {
+  const link = document.getElementById("my-portfolio");
+  if (!link) return;
 
-    const params = new URLSearchParams(window.location.search);
-    const userFromUrl = params.get("user");
-
-    if (userFromUrl) {
-      loadUserPortfolio(userFromUrl);
-    } else {
-      loadMyPortfolio();
-    }
+  if (!localStorage.getItem("token")) {
+    link.style.display = "none";
   }
-});
+}

@@ -22,7 +22,7 @@ const ratingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// один пользователь — одна оценка на фото
+
 ratingSchema.index({ user: 1, photo: 1 }, { unique: true });
 
 const Rating = mongoose.model("Rating", ratingSchema);

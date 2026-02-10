@@ -17,8 +17,14 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // middleware
-app.use(cors({ origin: "*" }));
-app.use(express.json());
+app.use(cors({
+  origin: [
+    "http://localhost:5000",
+    "http://localhost:5500",
+    "https://final-project-wamq.onrender.com"
+  ],
+  credentials: true
+}));
 
 // static folders
 app.use("/uploads", express.static("uploads"));

@@ -29,7 +29,6 @@ app.use(cors({
 }));
 
 // static folders
-app.use("/uploads", express.static("uploads"));
 app.use(express.static(path.join(__dirname, "../public")));
 
 // API routes

@@ -201,28 +201,29 @@ function protectMyPortfolio() {
 ====================== */
 function uploadPhoto() {
   const title = document.getElementById("photo-title").value.trim();
-  const file = document.getElementById("photo-file").files[0];
+  const imageUrl = document.getElementById("photo-url").value.trim();
   const error = document.getElementById("upload-error");
 
-  if (!title || !file) {
-    error.innerText = "Title and image are required";
+  if (!title || !imageUrl) {
+    error.innerText = "Title and image URL are required";
     return;
   }
-
-  const formData = new FormData();
-  formData.append("title", title);
-  formData.append("image", file);
 
   fetch(`${API}/photos`, {
     method: "POST",
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
-    body: formData,
+    body: JSON.stringify({
+      title,
+      imageUrl,
+    }),
   })
     .then(() => loadMyPortfolio())
-    .catch(() => error.innerText = "Upload failed");
+    .catch(() => (error.innerText = "Upload failed"));
 }
+
 
 /* ======================
    RATING

@@ -1,16 +1,18 @@
-import bcrypt from "bcrypt";
 import User from "../../models/User.js";
-import { generateToken } from "../utils/jwt.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 // REGISTER
-console.log("REGISTER BODY:", req.body);
-
 export const register = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
 
@@ -22,20 +24,23 @@ export const register = async (req, res, next) => {
       password: hashedPassword,
     });
 
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
     res.status(201).json({
       id: user._id,
-      username: user.username,
-      email: user.email,
-      token: generateToken(user._id),
+      token,
     });
+
   } catch (error) {
     next(error);
   }
 };
 
 // LOGIN
-console.log("LOGIN BODY:", req.body);
-
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -50,12 +55,17 @@ export const login = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
     res.json({
       id: user._id,
-      username: user.username,
-      email: user.email,
-      token: generateToken(user._id),
+      token,
     });
+
   } catch (error) {
     next(error);
   }

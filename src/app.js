@@ -9,14 +9,16 @@ import photoRoutes from "../routes/photo.routes.js";
 import ratingRoutes from "../routes/rating.routes.js";
 import commentRoutes from "../routes/comment.routes.js";
 
-// __dirname для ES modules
+// __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ создаём app ПЕРВЫМ
 const app = express();
 
-// middleware
+// 🔥 ОБЯЗАТЕЛЬНО
+app.use(express.json());
+
+// CORS
 app.use(cors({
   origin: [
     "http://localhost:5000",
@@ -44,6 +46,7 @@ app.get("/", (req, res) => {
 
 // global error handler
 app.use((err, req, res, next) => {
+  console.error(err); 
   res.status(err.statusCode || 500).json({
     message: err.message || "Server error",
   });

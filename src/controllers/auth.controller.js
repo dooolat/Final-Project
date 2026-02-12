@@ -3,6 +3,8 @@ import User from "../../models/User.js";
 import { generateToken } from "../utils/jwt.js";
 
 // REGISTER
+console.log("REGISTER BODY:", req.body);
+
 export const register = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
@@ -32,6 +34,8 @@ export const register = async (req, res, next) => {
 };
 
 // LOGIN
+console.log("LOGIN BODY:", req.body);
+
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;

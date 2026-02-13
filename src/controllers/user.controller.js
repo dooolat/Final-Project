@@ -1,4 +1,5 @@
 import Photo from "../../models/Photo.js";
+import User from "../../models/User.js";
 
 // GET /api/users/profile
 export const getProfile = async (req, res) => {

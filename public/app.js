@@ -138,6 +138,32 @@ function loadFeed() {
 /* ======================
    PORTFOLIO
 ====================== */
+
+async function deletePhoto(photoId) {
+  const confirmDelete = confirm("Are you sure you want to delete this photo?");
+  if (!confirmDelete) return;
+
+  try {
+    const res = await fetch(`${API}/photos/${photoId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    if (!res.ok) {
+      alert("Delete failed");
+      return;
+    }
+
+    loadMyPortfolio();
+  } catch {
+    alert("Delete failed");
+  }
+}
+
+
+
 function loadMyPortfolio() {
   loadPortfolio(localStorage.getItem("userId"), true);
 }
@@ -172,6 +198,7 @@ function loadPortfolio(userId, isOwner) {
           <img src="${photo.imageUrl}" />
           <h3>${photo.title}</h3>
           <p>⭐ ${photo.avgRating}</p>
+          ${isOwner ? `<button onclick="deletePhoto('${photo._id}')">Delete</button>` : ""}
         `;
 
         gallery.appendChild(card);

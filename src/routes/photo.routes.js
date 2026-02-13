@@ -4,6 +4,7 @@ import {
   createPhoto,
   getAllPhotos,
   getPhotoById,
+  deletePhoto,
 } from "../controllers/photo.controller.js";
 
 const router = express.Router();
@@ -11,5 +12,6 @@ const router = express.Router();
 router.post("/", protect, createPhoto);
 router.get("/", getAllPhotos);
 router.get("/:id", getPhotoById);
+router.delete("/:id", protect, deletePhoto);
 
 export default router;

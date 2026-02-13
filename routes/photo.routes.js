@@ -1,44 +1,19 @@
-import express from "express";
-import protect from "../src/middleware/auth.middleware.js";
-import upload from "../src/utils/upload.js";
-import {
-  createPhoto,
-  getAllPhotos,
-  getPhotoById,
-  deletePhoto,
-} from "../src/controllers/photo.controller.js";
+export const deletePhoto = async (req, res, next) => {
+  try {
+    const photo = await Photo.findById(req.params.id);
 
-const router = express.Router();
+    if (!photo) {
+      return res.status(404).json({ message: "Photo not found" });
+    }
 
-/*
-  POST /api/photos
-  Создание фото
-  Требует:
-  - JWT токен
-  - form-data:
-      title (text)
-      image (file)
-*/
-router.post(
-  "/",
-  protect,
-  upload.single("image"),
-  createPhoto
-);
+    if (photo.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not allowed" });
+    }
 
-/*
-  GET /api/photos
-*/
-router.get("/", getAllPhotos);
+    await photo.deleteOne();
 
-/*
-  GET /api/photos/:id
-*/
-router.get("/:id", getPhotoById);
-
-/*
-  DELETE /api/photos/:id
-*/
-router.delete("/:id", protect, deletePhoto);
-
-export default router;
+    res.json({ message: "Photo deleted" });
+  } catch (error) {
+    next(error);
+  }
+};

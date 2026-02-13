@@ -1,5 +1,5 @@
+import express from "express";
 import protect from "../middleware/auth.middleware.js";
-import { createPhoto } from "../controllers/photo.controller.js";
 import {
   createPhoto,
   getAllPhotos,

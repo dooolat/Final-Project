@@ -339,6 +339,52 @@ function updateDeleteButton() {
   }
 });
 
+// Update username
+async function updateUsername() {
+  const username = document.getElementById("new-username")?.value.trim();
+  const messageEl = document.getElementById("profile-message");
+
+  if (!username || username.length < 3) {
+    if (messageEl) {
+      messageEl.style.color = "red";
+      messageEl.innerText = "Username must be at least 3 characters";
+    }
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/users/profile`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ username }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (messageEl) {
+        messageEl.style.color = "red";
+        messageEl.innerText = data.message || "Update failed";
+      }
+      return;
+    }
+
+    if (messageEl) {
+      messageEl.style.color = "green";
+      messageEl.innerText = "Username updated successfully";
+    }
+
+  } catch {
+    if (messageEl) {
+      messageEl.style.color = "red";
+      messageEl.innerText = "Update failed";
+    }
+  }
+}
+
 
 // Update auth button
 function updateAuthButton() {

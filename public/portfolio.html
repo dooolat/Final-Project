@@ -10,6 +10,21 @@
   <header>
     <h1>Portfolio</h1>
     <a href="index.html">Back to Feed</a>
+    
+    <div style="margin-bottom:20px;">
+  <h3>Change Username</h3>
+
+  <input
+    type="text"
+    id="new-username"
+    placeholder="Enter new username"
+  />
+
+  <button onclick="updateUsername()">Save</button>
+
+  <p id="profile-message" style="color:green;"></p>
+    </div>
+    
     <div>
   <button id="auth-btn">Logout</button>
   <button id="delete-account-btn" style="margin-left:10px; background:red; color:white;">

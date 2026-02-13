@@ -37,3 +37,14 @@ export const getUserPortfolio = async (req, res, next) => {
     next(error);
   }
 };
+
+//delete account
+export const deleteAccount = async (req, res, next) => {
+  try {
+    await User.findByIdAndDelete(req.user._id);
+
+    res.json({ message: "Account deleted" });
+  } catch (error) {
+    next(error);
+  }
+};

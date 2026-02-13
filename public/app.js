@@ -305,9 +305,22 @@ function clearErrors() {
 document.addEventListener("DOMContentLoaded", () => {
 
   updateAuthButton();
+  updateDeleteButton();
   updateMyPortfolioLink();
   protectMyPortfolio();
   
+function updateDeleteButton() {
+  const btn = document.getElementById("delete-account-btn");
+  if (!btn) return;
+
+  if (localStorage.getItem("token")) {
+    btn.style.display = "inline-block";
+    btn.onclick = deleteAccount;
+  } else {
+    btn.style.display = "none";
+  }
+}
+
   // FEED
   if (document.getElementById("feed")) {
     loadFeed();
@@ -351,5 +364,30 @@ function updateMyPortfolioLink() {
 
   if (!localStorage.getItem("token")) {
     link.style.display = "none";
+  }
+}
+
+// Delete account
+async function deleteAccount() {
+  const confirmDelete = confirm("Are you sure you want to delete your account? This cannot be undone.");
+  if (!confirmDelete) return;
+
+  try {
+    const res = await fetch(`${API}/users/profile`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    if (!res.ok) {
+      alert("Delete failed");
+      return;
+    }
+
+    localStorage.clear();
+    window.location.href = "login.html";
+  } catch {
+    alert("Delete failed");
   }
 }

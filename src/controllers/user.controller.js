@@ -1,4 +1,6 @@
 import Photo from "../../models/Photo.js";
+import Comment from "../../models/Comment.js";
+import Rating from "../../models/Rating.js";
 import User from "../../models/User.js";
 
 // GET /api/users/profile
@@ -42,9 +44,18 @@ export const getUserPortfolio = async (req, res, next) => {
 //delete account
 export const deleteAccount = async (req, res, next) => {
   try {
-    await User.findByIdAndDelete(req.user._id);
+    const userId = req.user._id;
 
-    res.json({ message: "Account deleted" });
+    await Photo.deleteMany({ owner: userId });
+
+    await Comment.deleteMany({ author: userId });
+
+    await Rating.deleteMany({ user: userId });
+
+    await User.findByIdAndDelete(userId);
+
+    res.json({ message: "Account and all related data deleted" });
+
   } catch (error) {
     next(error);
   }

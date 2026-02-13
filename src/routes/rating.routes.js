@@ -1,6 +1,6 @@
 import express from "express";
-import protect from "../src/middleware/auth.middleware.js";
-import { ratePhoto } from "../src/controllers/rating.controller.js";
+import protect from "../middleware/auth.middleware.js";
+import { ratePhoto } from "../controllers/rating.controller.js";
 
 const router = express.Router();
 

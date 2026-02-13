@@ -3,11 +3,11 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import authRoutes from "../routes/auth.routes.js";
-import userRoutes from "../routes/user.routes.js";
-import photoRoutes from "../routes/photo.routes.js";
-import ratingRoutes from "../routes/rating.routes.js";
-import commentRoutes from "../routes/comment.routes.js";
+import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import photoRoutes from "./routes/photo.routes.js";
+import ratingRoutes from "./routes/rating.routes.js";
+import commentRoutes from "./routes/comment.routes.js";
 
 // __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -15,7 +15,6 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// 🔥 ОБЯЗАТЕЛЬНО
 app.use(express.json());
 
 // CORS
